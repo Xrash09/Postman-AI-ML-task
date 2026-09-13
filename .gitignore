@@ -1,0 +1,4 @@
+train.csv
+__pycache__/
+*.pyc
+*.png

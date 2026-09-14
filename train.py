@@ -15,7 +15,9 @@ if __name__ == "__main__":
     y = df['label'].values
     X = df.drop('label', axis=1).values / 255.0
 
-    # One-hot encode labels: digit 3 becomes [0,0,0,1,0,0,0,0,0,0]
+    # One-hot encode labels into a (5000, 10) matrix.
+    # Uses advanced NumPy integer array indexing: np.arange selects every row, 
+    # and 'y' selects the specific column index for the true label to set to 1.0.
     Y = np.zeros((len(y), 10))
     Y[np.arange(len(y)), y] = 1.0
 

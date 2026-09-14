@@ -24,7 +24,10 @@ def test_gradient_correctness():
     dW2_custom, db2_custom = nn.backward_layer_2(delta2, cache["A1"])
     dW1_custom, db1_custom = nn.backward_layer_1(delta2, W2_np, cache["Z1"], cache["X"])
 
-    # 3. PyTorch Autograd Reference
+    #3. PyTorch Autograd Reference
+    #Note: torch.nn.functional.cross_entropy applies Softmax internally AND 
+    #defaults to reduction='mean'. This is why our manual delta2 divides by 
+    #the batch size (X_np.shape[0]) to ensure an exact 1:1 mathematical match.
     X_pt = torch.tensor(X_np, requires_grad=True)
     W1_pt = torch.tensor(W1_np, requires_grad=True)
     b1_pt = torch.tensor(b1_np, requires_grad=True)
@@ -48,7 +51,7 @@ def test_gradient_correctness():
     np.testing.assert_allclose(dW1_custom, W1_pt.grad.numpy(), atol=1e-5)
     np.testing.assert_allclose(db1_custom, b1_pt.grad.numpy(), atol=1e-5)
 
-    print("✅ RESULT: PASS (All manual gradients match torch.autograd within 1e-5 tolerance)")
+    print("RESULT: PASS (All manual gradients match torch.autograd within 1e-5 tolerance)")
 
 if __name__ == "__main__":
     try:

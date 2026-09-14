@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 class NeuralNetwork:
 
 
-    # defines initial layers 1 and 2 with weights and  biases, using random values
+    # defines initial layers 1 and 2 with weights and  biases, using random values,0.01 is also multiplied so the values are small and easy to understand , rather than large values causing random noise
     def init_layer_1(self, input_dim, hidden_dim):
         W1 = np.random.randn(input_dim, hidden_dim) * 0.01
         b1 = np.zeros((1, hidden_dim))
@@ -16,18 +16,20 @@ class NeuralNetwork:
         b2 = np.zeros((1, output_dim))
         return W2, b2
 
-    #RELU activation function and its derivative are added so that non-linearity is there in the network 
+    
+    # ReLU activation function: outputs Z if Z > 0, else 0. This introduces non-linearity.
     def relu(self, Z):
         A = np.maximum(0, Z)
         return A
 
-    #RELU derivate is giving an output of 1 for positive values and 0 for ngeative values inputted
+    # Derivative of ReLU: 1 if Z > 0, else 0. Acts as a gate during backprop.
     def relu_derivative(self, Z):
         return (Z > 0).astype(float)
 
-    #softmax is used to turn the negartive values which would be meaning less to something meaningful via exponent of the Z by sum of exponents further translating to the probability of ts occurence
+    # Softmax converts raw logits into a probability distribution.
+    # Subtracting np.max(Z) is a numerical stability trick to prevent np.exp() 
+    # from overflowing to infinity without changing the final probability ratios.
     def softmax(self, Z):
-        
         exp_Z = np.exp(Z - np.max(Z, axis=1, keepdims=True))
         return exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
 
@@ -51,13 +53,13 @@ class NeuralNetwork:
         return np.mean(log_probs)
 
 
-    #computes the gradients for output of W2 and b2 and computes their net error using dot product and sum
+    #computes the gradients for output of W2 and b2 and computes their net error using dot product and sum , Using the chain rule: dL/dW2 = (dL/dZ2) * (dZ2/dW2) = A1.T (dot) delta2 ,dL/db2 = sum of delta2 across the batch size.
     def backward_layer_2(self, delta2, A1):
         dW2 = np.dot(A1.T, delta2)
         db2 = np.sum(delta2, axis=0, keepdims=True)
         return dW2, db2
 
-    #back propagates the error through w2 to compute gradients for hidden layer parameters w1 and b1 done via dot product and summation again
+    #back propagates the error through w2 to compute gradients for hidden layer parameters w1 and b1 done via dot product and summation again , delta1 (Error at hidden layer) = (delta2 * W2.T) element-wise multiplied by ReLU derivative , dL/dW1 = X.T (dot) delta1 , dL/db1 = sum of delta1 across the batch.
     def backward_layer_1(self, delta2, W2, Z1, X):
           delta1 = np.dot(delta2, W2.T)* self.relu_derivative(Z1)
           dW1 =np.dot(X.T, delta1)
